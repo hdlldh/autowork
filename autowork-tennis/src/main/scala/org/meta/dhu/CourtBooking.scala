@@ -4,11 +4,12 @@ import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.openqa.selenium.{By, WebElement}
 
-import java.time.Duration
-import java.util.Properties
+import java.time.format.DateTimeFormatter
+import java.time.{Duration, LocalDate, LocalDateTime}
+import java.util.{Date, Properties}
 import scala.util.{Failure, Success, Try}
 
-object TennisCourtBooking {
+object CourtBooking {
 
   case class Element(className: String, textValue: String)
 
@@ -23,8 +24,8 @@ object TennisCourtBooking {
   final val ReviewButton = Element("checkout-continue-button", "Review Transaction")
   final val CompleteButton = Element("checkout-continue-button", "Complete Transaction")
   final val TimeBlock = "Public Reservations 5pm-10pm ($0/Hour)"
-  final val TimeFrom = "06:00 PM"
-  final val TimeTo = "07:00 PM"
+  final val TimeFrom = "08:00 PM"
+  final val TimeTo = "09:00 PM"
 
   def main(args: Array[String]): Unit = {
     // Load config file and clean up cookies
@@ -42,12 +43,22 @@ object TennisCourtBooking {
     // Pick "Tennis Court 1 (Reservable)"
     seekAndClick(TennisCourt, Some(AddToCartButton))
     // Pick "23"
-    seekAndClick(Element("ui-state-default", "23"), Some(Element("ui-state-active", "23")))
+    val t = LocalDate.now.plusDays(1)
+    val d = t.format(DateTimeFormatter.ofPattern("dd"))
+    seekAndClick(Element("ui-state-default", "31"), Some(Element("ui-state-active", d)))
 
-    Seq(TimeBlock, TimeFrom, TimeTo).zipWithIndex.foreach {
-      case (v, i) =>
-        dropdownArrows("selectmenu-arrow", i, v)
-    }
+    Thread.sleep(1000)
+    // Pick time block
+    dropdownArrows("selectmenu-arrow", 0, TimeBlock)
+    Thread.sleep(1000)
+
+    // Pick time from
+    dropdownArrows("selectmenu-arrow", 1, TimeFrom)
+    Thread.sleep(1000)
+
+    // Pick time to
+    dropdownArrows("selectmenu-arrow", 1, TimeTo)
+    Thread.sleep(1000)
 
     seekAndClick(AddToCartButton, Some(CheckoutButton))
     seekAndClick(CheckoutButton, Some(SubmitButton))
@@ -104,7 +115,12 @@ object TennisCourtBooking {
       }
       webElements.head.click()
       expectElement match {
-        case Some(e) => new WebDriverWait(driver, Duration.ofSeconds(3)).until(_ => isFound(e))
+        case Some(e) =>
+          Try {
+            val res = new WebDriverWait(driver, Duration.ofSeconds(3)).until(_ => isFound(e))
+            println(s"Clicked ${element.textValue} successfully")
+            res
+          }.toOption.getOrElse(false)
         case None => true
       }
     }
@@ -117,8 +133,16 @@ object TennisCourtBooking {
       .map(_.asInstanceOf[WebElement])
     assert(arrows.length == 3, "The number of dropdown arrows should be 3")
     arrows(index).click()
-    new WebDriverWait(driver, Duration.ofSeconds(3))
-      .until(_ => driver.findElements(By.className("open")).toArray.nonEmpty)
+    Try {
+      val res = new WebDriverWait(driver, Duration.ofSeconds(3))
+        .until { _ =>
+          val s = driver.findElements(By.className("selectmenu-selectedItem")).toArray()
+          s(index).asInstanceOf[WebElement].getText == textValue
+        }
+      println(s"Clicked dropdown arrow successfully")
+      res
+    }
+
     seekAndClick(Element("selectmenu-item", textValue), Some(Element("selectmenu-selectedItem", textValue)))
   }
 }
