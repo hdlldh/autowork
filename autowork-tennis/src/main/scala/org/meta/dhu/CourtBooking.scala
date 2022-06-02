@@ -24,8 +24,8 @@ object CourtBooking {
   final val ReviewButton = Element("checkout-continue-button", "Review Transaction")
   final val CompleteButton = Element("checkout-continue-button", "Complete Transaction")
   final val TimeBlock = "Public Reservations 5pm-10pm ($0/Hour)"
-  final val TimeFrom = "05:00 PM"
-  final val TimeTo = "06:00 PM"
+  final val TimeFrom = "08:00 PM"
+  final val TimeTo = "09:00 PM"
 
   def main(args: Array[String]): Unit = {
     // Load config file and clean up cookies
@@ -57,7 +57,7 @@ object CourtBooking {
     Thread.sleep(1000)
 
     // Pick time to
-    dropdownArrows("selectmenu-arrow", 1, TimeTo)
+    dropdownArrows("selectmenu-arrow", 2, TimeTo)
     Thread.sleep(1000)
 
     seekAndClick(AddToCartButton, Some(CheckoutButton))
