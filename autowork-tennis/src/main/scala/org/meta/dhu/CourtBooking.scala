@@ -5,8 +5,8 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.openqa.selenium.{By, WebElement}
 
 import java.time.format.DateTimeFormatter
-import java.time.{Duration, LocalDate, LocalDateTime}
-import java.util.{Date, Properties}
+import java.time.{Duration, LocalDate}
+import java.util.Properties
 import scala.util.{Failure, Success, Try}
 
 object CourtBooking {
@@ -87,8 +87,12 @@ object CourtBooking {
       driver.findElement(By.className("dropdown-toggle")).click()
       driver.findElement(By.className("rec1-login-toggle-button")).click()
       val loginForm = driver.findElement(By.className("ui-inset-sm"))
-      loginForm.findElement(By.id("login-username")).sendKeys(props.getProperty("tennis.court.username"))
-      loginForm.findElement(By.id("login-password")).sendKeys(props.getProperty("tennis.court.password"))
+      loginForm
+        .findElement(By.id("login-username"))
+        .sendKeys(props.getProperty("tennis.court.username"))
+      loginForm
+        .findElement(By.id("login-password"))
+        .sendKeys(props.getProperty("tennis.court.password"))
       loginForm.findElement(By.className("btn-primary")).click()
       new WebDriverWait(driver, Duration.ofSeconds(3))
         .until(_ => isFound(FacilityRentals))
@@ -96,7 +100,9 @@ object CourtBooking {
   }
 
   private def seek(element: Element): Array[WebElement] =
-    driver.findElements(By.className(element.className)).toArray
+    driver
+      .findElements(By.className(element.className))
+      .toArray
       .filter(_.isInstanceOf[WebElement])
       .map(_.asInstanceOf[WebElement])
       .filter(_.getText == element.textValue)
@@ -126,9 +132,10 @@ object CourtBooking {
     }
   }
 
-
   private def dropdownArrows(className: String, index: Int, textValue: String): Boolean = {
-    val arrows = driver.findElements(By.className(className)).toArray
+    val arrows = driver
+      .findElements(By.className(className))
+      .toArray
       .filter(_.isInstanceOf[WebElement])
       .map(_.asInstanceOf[WebElement])
     assert(arrows.length == 3, "The number of dropdown arrows should be 3")
@@ -143,6 +150,9 @@ object CourtBooking {
       res
     }
 
-    seekAndClick(Element("selectmenu-item", textValue), Some(Element("selectmenu-selectedItem", textValue)))
+    seekAndClick(
+      Element("selectmenu-item", textValue),
+      Some(Element("selectmenu-selectedItem", textValue))
+    )
   }
 }
