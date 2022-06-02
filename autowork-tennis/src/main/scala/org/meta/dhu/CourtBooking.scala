@@ -24,8 +24,8 @@ object CourtBooking {
   final val ReviewButton = Element("checkout-continue-button", "Review Transaction")
   final val CompleteButton = Element("checkout-continue-button", "Complete Transaction")
   final val TimeBlock = "Public Reservations 5pm-10pm ($0/Hour)"
-  final val TimeFrom = "08:00 PM"
-  final val TimeTo = "09:00 PM"
+  final val TimeFrom = "05:00 PM"
+  final val TimeTo = "06:00 PM"
 
   def main(args: Array[String]): Unit = {
     // Load config file and clean up cookies
@@ -42,10 +42,10 @@ object CourtBooking {
     seekAndClick(RanchoPark, Some(TennisCourt))
     // Pick "Tennis Court 1 (Reservable)"
     seekAndClick(TennisCourt, Some(AddToCartButton))
-    // Pick "23"
+    // Pick date
     val t = LocalDate.now.plusDays(1)
-    val d = t.format(DateTimeFormatter.ofPattern("dd"))
-    seekAndClick(Element("ui-state-default", "31"), Some(Element("ui-state-active", d)))
+    val d = t.format(DateTimeFormatter.ofPattern("d"))
+    seekAndClick(Element("ui-state-default", d), Some(Element("ui-state-active", d)))
 
     Thread.sleep(1000)
     // Pick time block
